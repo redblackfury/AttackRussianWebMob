@@ -1,0 +1,20 @@
+{
+  "__headline": "Bombing Russian Web infrastructure...",
+  "__you_ip": "Your ip",
+  "__helper_text_3": "* set lower value if your phone/internet lags",
+  "__current_requests": "Current requests per second",
+  "__see": "* see",
+  "__which_sites": "which sites I bombed",
+  "__total_requests": "Total requests",
+  "__pause": "Pause",
+  "__start": "Start",
+  "__it_army": "Site list provided by",
+  "__source_code": "Source code",
+  "__target_host": "Host",
+  "__protocol": "Protocol",
+  "__first_attack": "First attack",
+  "__last_attack": "Last attack",
+  "__requests_count": "Requests count",
+  "__helper_text_1": "* non-UA IP allows to bomb more sites",
+  "__request_limit": "Bomb requests per second limit"
+}
