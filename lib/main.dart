@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void shootFetches() async {
-    for (var i = 0; i < _limitRequests; i++) {
+    for (var i = 0; i < _limitRequests * SHOOT_INTERVAL_SECOND; i++) {
       final pointAttack = randomChoice(_tasks, _weight);
       Uri endpoint = Uri.parse("${pointAttack.proto}://${pointAttack.host}");
 
