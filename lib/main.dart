@@ -353,7 +353,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: Row(children: [
                         const Image(
-                            image: AssetImage('assets/usauk.png'),
+                            image: AssetImage('assets/usuk.png'),
                             width: 30,
                             height: 20),
                         Text(
