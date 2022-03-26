@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
-// import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -466,7 +465,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 '__current_requests'.i18n(),
                 style: TextStyle(fontSize: 14, color: textColor),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
+              Text(
+                '$_currentRPS',
+                style: TextStyle(fontSize: 14, color: textColor),
+              ),
+              const SizedBox(height: 10),
               TextButton(
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,
@@ -489,11 +493,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                '$_currentRPS',
-                style: TextStyle(fontSize: 14, color: textColor),
-              ),
               const SizedBox(height: 20),
               Text(
                 '__total_requests'.i18n(),
@@ -511,20 +510,33 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 20),
               TextButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(const Color(0xFF1F1A1A)),
-                ),
-                onPressed: () {
-                  _statusWorker == true
-                      ? changeStatusWorker(false)
-                      : startWorker(true);
-                },
-                child: Text(
-                  _statusWorker == true ? '__pause'.i18n() : '__start'.i18n(),
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF1F1A1A)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              side: const BorderSide(
+                                  color: Color(0xFF9AC9FF), width: 2.0)))),
+                  onPressed: () {
+                    _statusWorker == true
+                        ? changeStatusWorker(false)
+                        : startWorker(true);
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 80.0),
+                        child: Text(
+                          _statusWorker == true
+                              ? '__pause'.i18n()
+                              : '__start'.i18n(),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  )),
               const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
