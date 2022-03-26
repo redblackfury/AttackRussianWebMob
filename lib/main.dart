@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'dart:ffi';
+// import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -83,8 +83,10 @@ class MyHomePage extends StatefulWidget {
 const SHOOT_INTERVAL_SECOND = 5;
 const MAX_LIMIT = 200;
 const STEP_CHANGE_LIMIT = 10;
-DateTime START_APP = DateTime.now();
 const NAME_STATUS_WORKER = 'statusWorker';
+const LOCAL_STORAGE_ITEM_TOTAL_REQS = 'totalReqs';
+const LOCAL_STORAGE_ITEM_UP_MS = 'upMs';
+
 final LocalStorage STORAGE = new LocalStorage('arwStorage');
 const UPDATE_VIEW_TIMEOUT_SECONDS = 1;
 
@@ -97,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _limitRequests = 10;
   int _currentRPS = 0;
   int _totalRequests = 0;
+  int _upMilliseconds = 0;
   bool _statusWorker = false;
   List _tasks = [];
   List<double> _weight = [];
@@ -176,16 +179,11 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    setState(() {
-      _totalRequests = 0;
-    });
-
     while (true) {
       shootFetches();
       if (_statusWorker == false) {
         break;
       }
-
       await timeout(SHOOT_INTERVAL_SECOND);
     }
   }
@@ -193,6 +191,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void startWorker(bool manual) async {
     await STORAGE.ready;
     var stateWorkerStorage = await STORAGE.getItem(NAME_STATUS_WORKER);
+    int? historicalRqs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_TOTAL_REQS);
+    int? historicalMs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_UP_MS);
+
+    setState(() {
+      _totalRequests = historicalRqs ?? 0;
+      _upMilliseconds = historicalMs ?? 0;
+    });
+
     if (stateWorkerStorage == 'disable' && manual == false) {
       return;
     }
@@ -288,9 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String timeAfterLaunch() {
-    DateTime now = DateTime.now();
-    Duration diffTime = now.difference(START_APP);
-    int seconds = diffTime.inMilliseconds ~/ 1000;
+    int seconds = _upMilliseconds ~/ 1000;
 
     if (seconds > 86400) {
       return '${seconds ~/ 86400}d';
@@ -304,11 +308,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _intervalWorker() async {
     while (true) {
+      DateTime prevCycle = DateTime.now();
       await timeout(UPDATE_VIEW_TIMEOUT_SECONDS);
+
+      await STORAGE.ready;
+      STORAGE.setItem(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
+      STORAGE.setItem(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
       setState(() {
         _upTime = timeAfterLaunch();
         _totalStringRequests = Formatter.formatter(_totalRequests);
       });
+      DateTime now = DateTime.now();
+      Duration diffTime = now.difference(prevCycle);
+      _upMilliseconds += diffTime.inMilliseconds;
     }
   }
 
