@@ -263,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     var ip = data['ip'];
-    var _maskedIp = "✶✶✶" +
+    var _maskedIp = "***" +
         ip.split("").asMap().entries.map((e) {
           return e.key < ip.length / 2 ? '' : e.value;
         }).join("");
