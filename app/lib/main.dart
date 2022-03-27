@@ -210,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> changeStatusWorker(bool status) async {
     await STORAGE.ready;
-    STORAGE.setItem(NAME_STATUS_WORKER, status == true ? 'enable' : 'disable');
+    await STORAGE.setItem(NAME_STATUS_WORKER, status == true ? 'enable' : 'disable');
     setState(() {
       _statusWorker = status;
     });
@@ -318,8 +318,9 @@ class _MyHomePageState extends State<MyHomePage> {
       await timeout(UPDATE_VIEW_TIMEOUT_SECONDS);
 
       await STORAGE.ready;
-      STORAGE.setItem(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
-      STORAGE.setItem(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
+      await STORAGE.setItem(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
+      await STORAGE.setItem(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
+
       setState(() {
         _upTime = timeAfterLaunch();
         _totalStringRequests = Formatter.formatter(_totalRequests);
