@@ -262,8 +262,14 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
+    var ip = data['ip'];
+    var _maskedIp = "✶✶✶" +
+        ip.split("").asMap().entries.map((e) {
+          return e.key < ip.length / 2 ? '' : e.value;
+        }).join("");
+
     setState(() {
-      _myIp = data['ip'];
+      _myIp = _maskedIp;
       _country = country;
       _userAgent = randomUserAgent;
       _tasks = targetObjs;
@@ -421,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       image: AssetImage('assets/country/$_country.png'),
                       width: 30,
                       height: 20),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 7),
                   Text(
                     _myIp,
                     style: const TextStyle(fontSize: 14, color: textColor),
