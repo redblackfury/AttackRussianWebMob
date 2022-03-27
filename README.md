@@ -2,7 +2,7 @@
 
 Завантажте APK файл на свій смартфон і встановіть його:
 
-[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v1.0/attack_ru_web_v1.0.apk)
+[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v2.0/attack_ru_web_v2.0.apk)
 
 
 # Preview
