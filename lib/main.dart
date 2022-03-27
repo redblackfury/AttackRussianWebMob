@@ -80,7 +80,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 const SHOOT_INTERVAL_SECOND = 5;
-const MAX_LIMIT = 200;
+const MAX_LIMIT = 1000;
 const STEP_CHANGE_LIMIT = 10;
 const NAME_STATUS_WORKER = 'statusWorker';
 const LOCAL_STORAGE_ITEM_TOTAL_REQS = 'totalReqs';
@@ -273,7 +273,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void changeLimitRequest(int value) {
-    var tempValue = _limitRequests + value;
+    var tempValue = _limitRequests +
+        value * STEP_CHANGE_LIMIT * (_limitRequests < 100 ? 1 : 10);
 
     if (tempValue <= MAX_LIMIT && tempValue > 0) {
       setState(() {
@@ -438,7 +439,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Image.asset('assets/minus.png'),
                     iconSize: 5,
                     onPressed: () {
-                      changeLimitRequest(-STEP_CHANGE_LIMIT);
+                      changeLimitRequest(-1);
                     },
                   ),
                   const SizedBox(width: 5),
@@ -451,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Image.asset('assets/plus.png'),
                     iconSize: 5,
                     onPressed: () {
-                      changeLimitRequest(STEP_CHANGE_LIMIT);
+                      changeLimitRequest(1);
                     },
                   ),
                 ],
