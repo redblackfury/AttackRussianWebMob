@@ -357,6 +357,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             image: AssetImage('assets/usuk.png'),
                             width: 30,
                             height: 20),
+                        const SizedBox(
+                          width: 5,
+                        ),
                         Text(
                           'Eng lang',
                           style: TextStyle(
@@ -383,6 +386,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             image: AssetImage('assets/uk.png'),
                             width: 30,
                             height: 20),
+                        const SizedBox(
+                          width: 5,
+                        ),
                         Text(
                           'Укр мова',
                           style: TextStyle(
