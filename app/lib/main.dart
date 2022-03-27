@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:localization/localization.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dart_random_choice/dart_random_choice.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
@@ -20,6 +17,50 @@ Uri serverEndpoint =
 
 Map logs = {};
 
+Map translate = {
+  "en": {
+    "__headline": "Bombing Russian Web infrastructure...",
+    "__you_ip": "Your ip",
+    "__helper_text_3": "* set lower value if your smartphone lags",
+    "__current_requests": "Current requests per second",
+    "__see": "* see",
+    "__which_sites": "which sites I bombed",
+    "__total_requests": "Total requests",
+    "__pause": "PAUSE",
+    "__start": "START",
+    "__it_army": "Site list provided by",
+    "__source_code": "Source code",
+    "__target_host": "Host",
+    "__protocol": "Protocol",
+    "__first_attack": "First attack",
+    "__last_attack": "Last attack",
+    "__requests_count": "Requests count",
+    "__helper_text_1": "* non-UA IP allows to bomb more sites",
+    "__request_limit": "Bomb requests per second limit"
+  },
+  "uk": {
+    "__headline": "Бомбардуємо Веб інфраструктуру росіян...",
+    "__you_ip": "Ваша IP",
+    "__helper_text_3": "* зменшіть, якщо ваш смартфон глючить",
+    "__current_requests": "Активних запитів за секунду",
+    "__see": "* показати",
+    "__which_sites": "які сайти я атакую",
+    "__total_requests": "Всього запитів",
+    "__pause": "ПАУЗА",
+    "__start": "СТАРТ",
+    "__it_army": "Список сайтів від",
+    "__source_code": "Вихідний код",
+    "__target_host": "Ціль",
+    "__protocol": "Протокол",
+    "__first_attack": "Перша атака",
+    "__last_attack": "Остання атака",
+    "__requests_count": "Кількість атак",
+    "__helper_text_1":
+        "* неукраїнські IP адреси дозволяють бомбити більше сайтів",
+    "__request_limit": "Ліміт запитів-бомб за секунду"
+  }
+};
+String globalLocale = "en";
 void main() {
   runApp(MyApp());
 }
@@ -39,33 +80,13 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  Locale? _locale;
-
-  changeLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    LocalJsonLocalization.delegate.directories = ['lib/i18n'];
     return MaterialApp(
       title: 'Attack Russian Web',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      locale: _locale,
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        LocalJsonLocalization.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', 'US'),
-        Locale('uk', 'UA'),
-      ],
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -105,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _totalStringRequests = '0';
   DateTime windowStartState = DateTime.now();
   int requestsAtWindowState = 0;
+  String locale = "en";
 
   var _upTime = '0s';
   var _userAgent = '';
@@ -210,7 +232,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> changeStatusWorker(bool status) async {
     await STORAGE.ready;
-    await STORAGE.setItem(NAME_STATUS_WORKER, status == true ? 'enable' : 'disable');
+    await STORAGE.setItem(
+        NAME_STATUS_WORKER, status == true ? 'enable' : 'disable');
     setState(() {
       _statusWorker = status;
     });
@@ -280,7 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void changeLimitRequest(int value) {
     var tempValue = _limitRequests +
-        value * STEP_CHANGE_LIMIT * (_limitRequests < 100 ? 1 : 10);
+        value * STEP_CHANGE_LIMIT * (_limitRequests <= 100 ? 1 : 10);
 
     if (tempValue <= MAX_LIMIT && tempValue > 0) {
       setState(() {
@@ -331,9 +354,15 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void changeLocale(String lang) {
+    globalLocale = lang;
+    setState(() {
+      locale = lang;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context);
     return Scaffold(
       body: Center(
         child: Container(
@@ -349,15 +378,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   TextButton(
                       style: ButtonStyle(
-                        backgroundColor: locale.countryCode == 'US'
+                        backgroundColor: locale == 'en'
                             ? MaterialStateProperty.all<Color>(
                                 Color.fromARGB(170, 255, 255, 255))
                             : null,
                       ),
                       onPressed: () {
-                        final myApp =
-                            context.findAncestorStateOfType<MyAppState>()!;
-                        myApp.changeLocale(Locale('en', 'US'));
+                        changeLocale("en");
                       },
                       child: Row(children: [
                         const Image(
@@ -371,22 +398,20 @@ class _MyHomePageState extends State<MyHomePage> {
                           'Eng lang',
                           style: TextStyle(
                               fontSize: 14,
-                              color: locale.countryCode == 'US'
+                              color: locale == 'en'
                                   ? const Color(0xFF494949)
                                   : const Color(0xff9AC9FF)),
                         ),
                       ])),
                   TextButton(
                       style: ButtonStyle(
-                        backgroundColor: locale.countryCode == 'UA'
+                        backgroundColor: locale == 'uk'
                             ? MaterialStateProperty.all<Color>(
                                 Color.fromARGB(170, 255, 255, 255))
                             : null,
                       ),
                       onPressed: () {
-                        final myApp =
-                            context.findAncestorStateOfType<MyAppState>()!;
-                        myApp.changeLocale(Locale('uk', 'UA'));
+                        changeLocale("uk");
                       },
                       child: Row(children: [
                         const Image(
@@ -400,7 +425,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           'Укр мова',
                           style: TextStyle(
                               fontSize: 14,
-                              color: locale.countryCode == 'UA'
+                              color: locale == 'UA'
                                   ? const Color(0xFF494949)
                                   : const Color(0xff9AC9FF)),
                         ),
@@ -412,12 +437,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 30,
               ),
               Text(
-                '__headline'.i18n(),
+                translate[locale]["__headline"],
                 style: TextStyle(fontSize: 16, color: textColor),
               ),
               const SizedBox(height: 20),
               Text(
-                '__you_ip'.i18n(),
+                translate[locale]["__you_ip"],
                 style: TextStyle(fontSize: 14, color: textColor),
               ),
               const SizedBox(height: 5),
@@ -437,12 +462,12 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 5),
               Text(
-                '__helper_text_1'.i18n(),
+                translate[locale]["__helper_text_1"],
                 style: TextStyle(fontSize: 12, color: grayColor),
               ),
               const SizedBox(height: 20),
               Text(
-                '__request_limit'.i18n(),
+                translate[locale]["__request_limit"],
                 style: TextStyle(fontSize: 14, color: textColor),
               ),
               Row(
@@ -471,12 +496,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
               Text(
-                '__helper_text_3'.i18n(),
+                translate[locale]["__helper_text_3"],
                 style: TextStyle(fontSize: 12, color: grayColor),
               ),
               const SizedBox(height: 20),
               Text(
-                '__current_requests'.i18n(),
+                translate[locale]["__current_requests"],
                 style: TextStyle(fontSize: 14, color: textColor),
               ),
               const SizedBox(height: 10),
@@ -499,7 +524,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 child: Text(
-                  '__which_sites'.i18n(),
+                  translate[locale]["__which_sites"],
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF9AC9FF),
@@ -509,7 +534,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 20),
               Text(
-                '__total_requests'.i18n(),
+                translate[locale]["__total_requests"],
                 style: TextStyle(fontSize: 14, color: textColor),
               ),
               const SizedBox(height: 10),
@@ -544,8 +569,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             vertical: 8.0, horizontal: 80.0),
                         child: Text(
                           _statusWorker == true
-                              ? '__pause'.i18n()
-                              : '__start'.i18n(),
+                              ? translate[locale]["__pause"]
+                              : translate[locale]["__start"],
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -563,7 +588,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Column(
                     children: <Widget>[
                       Text(
-                        '__it_army'.i18n(),
+                        translate[locale]["__it_army"],
                         textAlign: TextAlign.left,
                         style: TextStyle(fontSize: 14, color: textColor),
                       ),
@@ -594,7 +619,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '__source_code'.i18n(),
+                        translate[locale]["__source_code"],
                         style: TextStyle(fontSize: 14, color: textColor),
                       ),
                       TextButton(
@@ -725,7 +750,7 @@ class LogRoute extends StatelessWidget {
                             Container(
                                 width: WIDTH_NAME,
                                 child: Text(
-                                  '__target_host'.i18n(),
+                                  translate[globalLocale]["__target_host"],
                                   style: TextStyle(
                                       color: Color(0xFF9B9B9B), fontSize: 12),
                                 )),
@@ -756,7 +781,7 @@ class LogRoute extends StatelessWidget {
                             Container(
                                 width: WIDTH_NAME,
                                 child: Text(
-                                  '__protocol'.i18n(),
+                                  translate[globalLocale]["__protocol"],
                                   style: TextStyle(
                                       color: Color(0xFF9B9B9B), fontSize: 12),
                                 )),
@@ -773,7 +798,7 @@ class LogRoute extends StatelessWidget {
                             Container(
                                 width: WIDTH_NAME,
                                 child: Text(
-                                  '__first_attack'.i18n(),
+                                  translate[globalLocale]["__first_attack"],
                                   style: TextStyle(
                                       color: Color(0xFF9B9B9B), fontSize: 12),
                                 )),
@@ -790,7 +815,7 @@ class LogRoute extends StatelessWidget {
                             Container(
                                 width: WIDTH_NAME,
                                 child: Text(
-                                  '__last_attack'.i18n(),
+                                  translate[globalLocale]["__last_attack"],
                                   style: TextStyle(
                                       color: Color(0xFF9B9B9B), fontSize: 12),
                                 )),
@@ -807,7 +832,7 @@ class LogRoute extends StatelessWidget {
                             Container(
                                 width: WIDTH_NAME,
                                 child: Text(
-                                  '__requests_count'.i18n(),
+                                  translate[globalLocale]["__requests_count"],
                                   style: TextStyle(
                                       color: Color(0xFF9B9B9B), fontSize: 12),
                                 )),
