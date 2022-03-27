@@ -106,6 +106,7 @@ const STEP_CHANGE_LIMIT = 10;
 const NAME_STATUS_WORKER = 'statusWorker';
 const LOCAL_STORAGE_ITEM_TOTAL_REQS = 'totalReqs';
 const LOCAL_STORAGE_ITEM_UP_MS = 'upMs';
+const LOCAL_STORAGE_ITEM_LIMIT_REQ = 'limitReqs';
 
 final LocalStorage STORAGE = new LocalStorage('arwStorage');
 const UPDATE_VIEW_TIMEOUT_SECONDS = 1;
@@ -214,10 +215,12 @@ class _MyHomePageState extends State<MyHomePage> {
     var stateWorkerStorage = await STORAGE.getItem(NAME_STATUS_WORKER);
     int? historicalRqs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_TOTAL_REQS);
     int? historicalMs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_UP_MS);
+    int? historicalLimit = await STORAGE.getItem(LOCAL_STORAGE_ITEM_LIMIT_REQ);
 
     setState(() {
       _totalRequests = historicalRqs ?? 0;
       _upMilliseconds = historicalMs ?? 0;
+      _limitRequests = historicalLimit ?? 10;
     });
 
     if (stateWorkerStorage == 'disable' && manual == false) {
@@ -343,6 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
       await STORAGE.ready;
       await STORAGE.setItem(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
       await STORAGE.setItem(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
+      await STORAGE.setItem(LOCAL_STORAGE_ITEM_LIMIT_REQ, _limitRequests);
 
       setState(() {
         _upTime = timeAfterLaunch();
@@ -425,7 +429,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           'Укр мова',
                           style: TextStyle(
                               fontSize: 14,
-                              color: locale == 'UA'
+                              color: locale == 'uk'
                                   ? const Color(0xFF494949)
                                   : const Color(0xff9AC9FF)),
                         ),
