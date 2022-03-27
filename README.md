@@ -3,7 +3,7 @@
 
 # Prevview
 
-![Attack Russian Web preview](../_asset/preview.svg)
+![Attack Russian Web preview](./app/assets/preview.svg)
 
 
 # Build apk
