@@ -142,7 +142,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void asyncInit() async {
-    await _initData(true);
+    try {
+      await _initData(true);
+    } catch (e) {
+      print("Error load data: $e");
+    }
+
     _intervalWorker();
     _intervalInitData();
     startWorker(false);
@@ -244,7 +249,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void _intervalInitData() async {
     while (true) {
       await timeout(10 * 60); // 10 min
-      await _initData(false);
+      try {
+        await _initData(false);
+      } catch (e) {
+        print("Error load data: $e");
+      }
     }
   }
 
@@ -256,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     final response = await http.get(Uri.parse(url)).catchError((e) {});
-    if (response == null) {
+    if (response == null || response.statusCode != 200) {
       print("Error load data from server");
       return;
     }
