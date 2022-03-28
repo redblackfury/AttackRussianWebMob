@@ -243,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _intervalInitData() async {
     while (true) {
-      await timeout(20 * 60); // 20 min
+      await timeout(10 * 60); // 10 min
       await _initData(false);
     }
   }
@@ -255,7 +255,11 @@ class _MyHomePageState extends State<MyHomePage> {
       url = url + '&lastRPS=' + _currentRPS.toString();
     }
 
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url)).catchError((e) {});
+    if (response == null) {
+      print("Error load data from server");
+      return;
+    }
     var data = jsonDecode(response.body);
     Map tempLogs = logs;
     // set user agent
