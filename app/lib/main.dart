@@ -12,8 +12,7 @@ const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
 const linkColor = Color(0xFF9AC9FF);
 
-Uri serverEndpoint =
-    Uri.parse("https://arwdispatch.redblackfury.com/get_targets");
+const URL_SERVER = 'https://arwdispatch.redblackfury.com';
 
 Map logs = {};
 
@@ -143,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void asyncInit() async {
-    await _initData();
+    await _initData(true);
     _intervalWorker();
     _intervalInitData();
     startWorker(false);
@@ -243,12 +242,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _intervalInitData() async {
-    await timeout(20 * 60); // 20 min
-    await _initData();
+    while (true) {
+      await timeout(20 * 60); // 20 min
+      await _initData(false);
+    }
   }
 
-  Future<void> _initData() async {
-    final response = await http.get(serverEndpoint);
+  Future<void> _initData(bool first) async {
+    var url = URL_SERVER + '/get_targets?device=android';
+
+    if (first == false) {
+      url = url + '&lastRPS=' + _currentRPS.toString();
+    }
+
+    final response = await http.get(Uri.parse(url));
     var data = jsonDecode(response.body);
     Map tempLogs = logs;
     // set user agent
