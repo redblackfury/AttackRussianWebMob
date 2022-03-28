@@ -4,8 +4,9 @@
 
 [![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v2.0/attack_ru_web_v2.0.apk)
 
+Хочете запустити на компьютері? Вам сюди: [AttackRussianWeb for Windows/Linux/Mac](https://github.com/redblackfury/AttackRussianWeb)
 
-# Preview
+# Як виглядає застосунок / Preview
 
 ![Attack Russian Web preview](./app/assets/preview.svg)
 
