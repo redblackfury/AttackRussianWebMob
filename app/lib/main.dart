@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:dart_random_choice/dart_random_choice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:flutter_background/flutter_background.dart';
 
 const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
@@ -154,6 +155,18 @@ class _MyHomePageState extends State<MyHomePage> {
     _intervalWorker();
     _intervalInitData();
     startWorker(false);
+    final androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: "AttackRussianWeb is running",
+      notificationText:
+          "Tap for more information or to stop the app",
+      notificationImportance: AndroidNotificationImportance.Default,
+      notificationIcon: AndroidResource(
+          name: 'background_icon',
+          defType: 'drawable'),
+    );
+    bool success =
+        await FlutterBackground.initialize(androidConfig: androidConfig);
+    await FlutterBackground.enableBackgroundExecution();
   }
 
   void moveFloatingRPSWindows() async {

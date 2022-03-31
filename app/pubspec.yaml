@@ -42,6 +42,7 @@ dependencies:
   tcp_socket_connection: ^0.2.2
   wakelock: ^0.6.1+2
   dio: ^4.0.5
+  flutter_background: ^1.1.0
 
 dev_dependencies:
   flutter_test:
