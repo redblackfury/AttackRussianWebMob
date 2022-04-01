@@ -6,6 +6,15 @@
 
 Хочете запустити на компьютері? Вам сюди: [AttackRussianWeb for Windows/Linux/Mac](https://github.com/redblackfury/AttackRussianWeb)
 
+
+# Переконатися що це не вірус
+
+
+[![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/5273024f1fd7169f176943d1856fdd66345e94f41bac550c1272da94c6afa5da)
+
+
+Don't hesitate to check apk file by yourself on [virutstotal](https://www.virustotal.com/gui/home/upload)
+
 # Як виглядає застосунок / Preview
 
 ![Attack Russian Web preview](./app/assets/preview.svg)
