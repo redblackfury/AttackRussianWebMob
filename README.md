@@ -9,33 +9,33 @@
 
 # Переконатися що це не вірус
 
-
+За посиланням ви можете побачити результати перевірки файлу від VirusTotal ([що це таке?](https://uk.wikipedia.org/wiki/Virustotal))
 [![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/5273024f1fd7169f176943d1856fdd66345e94f41bac550c1272da94c6afa5da)
 
 
-Don't hesitate to check apk file by yourself on [virutstotal](https://www.virustotal.com/gui/home/upload)
+Також, ви можете перевірити наш .apk файл перед встановленням власноруч використовуючи [форму перевірки VirusTotal](https://www.virustotal.com/gui/home/upload)
 
 # Як виглядає застосунок / Preview
 
 ![Attack Russian Web preview](./app/assets/preview.svg)
 
 
-# Build apk by yourself
+# Як зібрати застосунок власноруч
 
-Install https://docs.flutter.dev/get-started/install
+Встановіть Flutter SDK https://docs.flutter.dev/get-started/install
 
-Then run in console:
+Потім склонуйте репозіторій і виконайте в консолі:
 
 ```
 cd app
 flutter build apk --release --no-sound-null-safety
 ```
 
-Done, copy APK file to your phone and install it.
+Готово, скопіюйте APK файл на ваш телефон і встановіть.
 
-# Is it possible to build for iOS ?
+# Чи можна забрати цей застосунок для iOS ?
 
-In theory yes. Read here https://docs.flutter.dev/deployment/ios
+В теорії так, читайте тут: https://docs.flutter.dev/deployment/ios
 
-Why we don't supply app for iOS? Because Android market share in Ukraine is 81.7% and it grows (70.97% worldwide).
+Ми не постачаємо версію для iOS тому що доля Android телефонів займає 81.7% ринку в Україні і 70.97% в світі і продовжує зростати.
 
