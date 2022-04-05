@@ -10,6 +10,8 @@
 # Переконатися що це не вірус
 
 За посиланням ви можете побачити результати перевірки файлу від VirusTotal ([що це таке?](https://uk.wikipedia.org/wiki/Virustotal))
+
+
 [![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/5273024f1fd7169f176943d1856fdd66345e94f41bac550c1272da94c6afa5da)
 
 
