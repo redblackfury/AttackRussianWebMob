@@ -12,7 +12,7 @@
 За посиланням ви можете побачити результати перевірки файлу від VirusTotal ([що це таке?](https://uk.wikipedia.org/wiki/Virustotal))
 
 
-[![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/b617dbdba3aecefa1bfef088d5ec0c7149224d950441bb7625ab975a454635e7?nocache=1)
+[![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/b617dbdba3aecefa1bfef088d5ec0c7149224d950441bb7625ab975a454635e7)
 
 
 Також, ви можете перевірити наш .apk файл перед встановленням власноруч використовуючи [форму перевірки VirusTotal](https://www.virustotal.com/gui/home/upload)
