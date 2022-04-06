@@ -9,6 +9,9 @@ import 'package:dart_random_choice/dart_random_choice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry/sentry.dart';
 
 const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
@@ -63,7 +66,17 @@ Map translate = {
   }
 };
 String globalLocale = "en";
-void main() {
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://6d5f8a00d95646579fd06a049368341c@o1192421.ingest.sentry.io/6314025';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
   runApp(MyApp());
 }
 
@@ -149,6 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
     storage = await SharedPreferences.getInstance();
     try {
       await _initData(true);
+      await Sentry.captureMessage("New client $_myIp");
     } catch (e) {
       print("Error load data: $e");
     }
@@ -157,12 +171,10 @@ class _MyHomePageState extends State<MyHomePage> {
     startWorker(false);
     final androidConfig = FlutterBackgroundAndroidConfig(
       notificationTitle: "AttackRussianWeb is running",
-      notificationText:
-          "Tap for more information or to stop the app",
+      notificationText: "Tap for more information or to stop the app",
       notificationImportance: AndroidNotificationImportance.Default,
-      notificationIcon: AndroidResource(
-          name: 'background_icon',
-          defType: 'drawable'),
+      notificationIcon:
+          AndroidResource(name: 'background_icon', defType: 'drawable'),
     );
     bool success =
         await FlutterBackground.initialize(androidConfig: androidConfig);
