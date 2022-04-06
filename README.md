@@ -2,7 +2,7 @@
 
 Завантажте APK файл на свій смартфон і встановіть його:
 
-[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v5.0/attack_ru_web_v5.0.apk)
+[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v6.0/attack_ru_web_v6.0.apk)
 
 Хочете запустити на компьютері? Вам сюди: [AttackRussianWeb for Windows/Linux/Mac](https://github.com/redblackfury/AttackRussianWeb)
 
