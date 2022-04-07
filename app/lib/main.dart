@@ -129,7 +129,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 const SHOOT_INTERVAL_SECOND = 1;
-const MAX_LIMIT = 200;
+const MAX_LIMIT = 500;
 const STEP_CHANGE_LIMIT = 10;
 const NAME_STATUS_WORKER = 'statusWorker';
 const LOCAL_STORAGE_ITEM_TOTAL_REQS = 'totalReqs';
