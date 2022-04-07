@@ -154,7 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     asyncInit();
-    moveFloatingRPSWindows();
     runRPSRefresher();
   }
 
@@ -168,7 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     _intervalWorker();
     _intervalInitData();
-    startWorker(false);
+    await startWorker(false); // this call reads settings
+
+    moveFloatingRPSWindows();
+
     final androidConfig = FlutterBackgroundAndroidConfig(
       notificationTitle: "AttackRussianWeb is running",
       notificationText: "Tap for more information or to stop the app",
@@ -252,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void startWorker(bool manual) async {
+  Future<void> startWorker(bool manual) async {
     var stateWorkerStorage = await storage.getString(NAME_STATUS_WORKER);
     int? historicalRqs = await storage.getInt(LOCAL_STORAGE_ITEM_TOTAL_REQS);
     int? historicalMs = await storage.getInt(LOCAL_STORAGE_ITEM_UP_MS);
