@@ -41,6 +41,7 @@ Map translate = {
     "__helper_text_1": "* non-UA IP allows to bomb more sites",
     "__request_limit": "Bomb requests per second limit",
     "__disable_lock_sceen": 'Keep screen active',
+    "__starting": 'Starting...',
   },
   "uk": {
     "__headline": "Бомбардуємо Веб інфраструктуру росіян...",
@@ -62,7 +63,8 @@ Map translate = {
     "__helper_text_1":
         "* неукраїнські IP адреси дозволяють бомбити більше сайтів",
     "__request_limit": "Ліміт запитів-бомб за секунду",
-    "__disable_lock_sceen": 'Тримати екран увімкненим'
+    "__disable_lock_sceen": 'Тримати екран увімкненим',
+    "__starting": 'Починаємо...',
   }
 };
 String globalLocale = "en";
@@ -136,6 +138,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _upMilliseconds = 0;
   bool _statusWorker = false;
   bool enableWakelock = false;
+  bool _showStarting = true;
+
   List _tasks = [];
   List<double> _weight = [];
   String _totalStringRequests = '0';
@@ -170,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await startWorker(false); // this call reads settings
 
     moveFloatingRPSWindows();
+    hideStartingAfterInterval();
 
     final androidConfig = FlutterBackgroundAndroidConfig(
       notificationTitle: "AttackRussianWeb is running",
@@ -181,6 +186,11 @@ class _MyHomePageState extends State<MyHomePage> {
     bool success =
         await FlutterBackground.initialize(androidConfig: androidConfig);
     await FlutterBackground.enableBackgroundExecution();
+  }
+
+  void hideStartingAfterInterval() async {
+    await timeoutMilliseconds(10000);
+    _showStarting = false;
   }
 
   void moveFloatingRPSWindows() async {
@@ -685,7 +695,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               )),
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+              Container(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _showStarting ? translate[locale]["__starting"] : "",
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFFFFFFFF)),
+                  )
+                ],
+              )),
+              const SizedBox(height: 25),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
