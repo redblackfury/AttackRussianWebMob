@@ -42,6 +42,12 @@ Map translate = {
     "__request_limit": "Bomb requests per second limit",
     "__disable_lock_sceen": 'Keep screen active',
     "__starting": 'Starting...',
+    "__unable_permission":
+        "We are unable to get permission to run this app in the background",
+    "__attack_not_possible":
+        "this attack is not possible without work in background",
+    "__retry_permission": "Retry to get permission",
+    "__need_help": 'need help?'
   },
   "uk": {
     "__headline": "Бомбардуємо Веб інфраструктуру росіян...",
@@ -65,9 +71,14 @@ Map translate = {
     "__request_limit": "Ліміт запитів-бомб за секунду",
     "__disable_lock_sceen": 'Тримати екран увімкненим',
     "__starting": 'Починаємо...',
+    "__unable_permission":
+        "Не вдається отримати дозвіл на запуск цього додатка фоновому режимі",
+    "__attack_not_possible": "Ця атака не можлива без роботи у фоновому режимі",
+    "__retry_permission": "Спробувати ще раз",
+    "__need_help": 'потрібна допомога?',
   }
 };
-String globalLocale = "en";
+String globalLocale = "uk";
 Future<void> main() async {
   await SentryFlutter.init(
     (options) {
@@ -145,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _totalStringRequests = '0';
   DateTime windowStartState = DateTime.now();
   int requestsAtWindowState = 0;
-  String locale = "en";
+  String locale = "uk";
   var storage;
 
   var _upTime = '0s';
@@ -159,6 +170,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
     asyncInit();
     runRPSRefresher();
+  }
+
+  Future<void> permissionBattery() async {
+    const androidConfig = FlutterBackgroundAndroidConfig(
+      notificationTitle: "AttackRussianWeb is running",
+      notificationText: "Tap for more information or to stop the app",
+      notificationImportance: AndroidNotificationImportance.Default,
+      notificationIcon:
+          AndroidResource(name: 'background_icon', defType: 'drawable'),
+    );
+    bool successFirst =
+        await FlutterBackground.initialize(androidConfig: androidConfig);
+
+    bool successSecond = true;
+  
+    if (!successFirst) {
+      successSecond = await FlutterBackground.initialize(androidConfig: androidConfig);
+    }
+
+    if (successSecond) {
+      await FlutterBackground.enableBackgroundExecution();
+      await Sentry.captureMessage("Allow $_myIp");
+      return;
+    }
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                NotifyPermission(locale, changeLocale, permissionBattery)));
   }
 
   void asyncInit() async {
@@ -176,16 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
     moveFloatingRPSWindows();
     hideStartingAfterInterval();
 
-    final androidConfig = FlutterBackgroundAndroidConfig(
-      notificationTitle: "AttackRussianWeb is running",
-      notificationText: "Tap for more information or to stop the app",
-      notificationImportance: AndroidNotificationImportance.Default,
-      notificationIcon:
-          AndroidResource(name: 'background_icon', defType: 'drawable'),
-    );
-    bool success =
-        await FlutterBackground.initialize(androidConfig: androidConfig);
-    await FlutterBackground.enableBackgroundExecution();
+    permissionBattery();
   }
 
   void hideStartingAfterInterval() async {
@@ -995,5 +1027,199 @@ class LogRoute extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     );
+  }
+}
+
+class NotifyPermission extends StatefulWidget {
+  String locale;
+  Function changeLocale;
+  Function permissionBattery;
+  NotifyPermission(this.locale, this.changeLocale, this.permissionBattery,
+      {Key? key})
+      : super(key: key);
+
+  @override
+  _NotifyPermissionW createState() =>
+      _NotifyPermissionW(locale, changeLocale, permissionBattery);
+}
+
+class _NotifyPermissionW extends State<NotifyPermission> {
+  String locale;
+  Function changeLocale;
+  Function permissionBattery;
+
+  _NotifyPermissionW(this.locale, this.changeLocale, this.permissionBattery);
+
+  @override
+  initState() {
+    super.initState();
+  }
+
+  void changeLocaleWidget(String lang) {
+    changeLocale(lang);
+    setState(() {
+      locale = lang;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: gradient(),
+          ),
+          padding: EdgeInsets.all(30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: locale == 'en'
+                            ? MaterialStateProperty.all<Color>(
+                                Color.fromARGB(170, 255, 255, 255))
+                            : null,
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0))),
+                      ),
+                      onPressed: () {
+                        changeLocaleWidget("en");
+                      },
+                      child: Row(children: [
+                        const Image(
+                            image: AssetImage('assets/usuk.png'),
+                            width: 30,
+                            height: 20),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Eng lang',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: locale == 'en'
+                                  ? const Color(0xFF494949)
+                                  : const Color(0xff9AC9FF)),
+                        ),
+                      ])),
+                  TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: locale == 'uk'
+                            ? MaterialStateProperty.all<Color>(
+                                Color.fromARGB(170, 255, 255, 255))
+                            : null,
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0))),
+                      ),
+                      onPressed: () {
+                        changeLocaleWidget("uk");
+                      },
+                      child: Row(children: [
+                        const Image(
+                            image: AssetImage('assets/uk.png'),
+                            width: 30,
+                            height: 20),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          'Укр мова',
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: locale == 'uk'
+                                  ? const Color(0xFF494949)
+                                  : const Color(0xff9AC9FF)),
+                        ),
+                      ])),
+                  const SizedBox(width: 20),
+                ],
+              ),
+              const SizedBox(height: 100),
+              Text(
+                translate[locale]["__unable_permission"],
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24, color: textColor),
+              ),
+              const SizedBox(height: 50),
+              Text(
+                translate[locale]["__attack_not_possible"],
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: textColor),
+              ),
+              const SizedBox(height: 50),
+              TextButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFF1F1A1A)),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              side: const BorderSide(
+                                  color: Color(0xFF9AC9FF), width: 2.0)))),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    permissionBattery();
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 80.0),
+                        child: Text(
+                          translate[locale]["__retry_permission"],
+                          style:
+                              const TextStyle(fontSize: 12, color: linkColor),
+                        ),
+                      ),
+                    ],
+                  )),
+              const SizedBox(height: 25),
+              // TextButton(
+              //   style: TextButton.styleFrom(
+              //     padding: EdgeInsets.zero,
+              //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              //     minimumSize: Size.zero,
+              //     alignment: Alignment.topLeft,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.pop(context);
+              //   },
+              //   child: Text(
+              //     translate[locale]["__need_help"],
+              //     style: const TextStyle(
+              //       fontSize: 12,
+              //       color: Color(0xFF9AC9FF),
+              //       decoration: TextDecoration.underline,
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  LinearGradient gradient() {
+    return const LinearGradient(
+        colors: [
+          Color(0xFFC00000),
+          Color(0xFF000000),
+        ],
+        begin: FractionalOffset(0.0, 0.0),
+        end: FractionalOffset(0.0, 1.0),
+        stops: [0.0, 1.0],
+        tileMode: TileMode.clamp);
   }
 }
