@@ -124,8 +124,8 @@ const LOCAL_STORAGE_ITEM_UP_MS = 'upMs';
 const LOCAL_STORAGE_ITEM_LIMIT_REQ = 'limitReqs';
 const UPDATE_VIEW_TIMEOUT_SECONDS = 1;
 
-const WINDOW_SIZE_MS = 20000;
-const WINDOW_TAIL_TO_HEAD_RATIO = 5; // 0.3 - tail - 0.7 head
+const WINDOW_SIZE_MS = 40000;
+const WINDOW_TAIL_TO_HEAD_RATIO = 0.3; // 0.3 - tail - 0.7 head
 
 const REFRESH_RPS_RATE_MS = 1000;
 
