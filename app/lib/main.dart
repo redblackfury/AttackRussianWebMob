@@ -243,11 +243,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void worker() async {
-    if (_tasks.isEmpty) {
-      changeStatusWorker(false);
-      return;
-    }
-
     while (true) {
       for (var i = 0; i < _limitRequests * SHOOT_INTERVAL_SECOND; i++) {
         try {
