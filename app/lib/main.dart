@@ -265,7 +265,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
       final endpoint = "${proto}://${pointAttack.host}";
       try {
-        await Dio().get(endpoint,
+        var dio = Dio()
+        (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+          return client;
+        };
+        await dio.get(endpoint,
             options: Options(
               followRedirects: false,
               headers: {"User-Agent": _userAgent},
