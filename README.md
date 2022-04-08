@@ -2,7 +2,7 @@
 
 Завантажте APK файл на свій смартфон і встановіть його:
 
-[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v7.0/attack_ru_web_v7.0.apk)
+[![Attack Russian Web preview](./app/assets/dlAndroid.svg)](https://github.com/redblackfury/AttackRussianWebMob/releases/download/v8.0/attack_ru_web_v8.0.apk)
 
 Хочете запустити на компьютері? Вам сюди: [AttackRussianWeb for Windows/Linux/Mac](https://github.com/redblackfury/AttackRussianWeb)
 
@@ -12,7 +12,7 @@
 За посиланням ви можете побачити результати перевірки файлу від VirusTotal ([що це таке?](https://uk.wikipedia.org/wiki/Virustotal))
 
 
-[![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/39f438f3e0f9f1074516f98dfe501e3bbaad00346e71d0b904a604d39523cb1b)
+[![Attack Russian Web is not a virus](./app/assets/novir.svg)](https://www.virustotal.com/gui/file/eead6cbe5951a01405a4c795726d002ea9f9944345833d434d9126457a115f1f)
 
 
 Також, ви можете перевірити наш .apk файл перед встановленням власноруч використовуючи [форму перевірки VirusTotal](https://www.virustotal.com/gui/home/upload)
