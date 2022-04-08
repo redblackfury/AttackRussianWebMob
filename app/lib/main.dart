@@ -42,7 +42,8 @@ Map translate = {
     "__first_attack": "First attack",
     "__last_attack": "Last attack",
     "__requests_count": "Requests count",
-    "__helper_text_1": "* non-UA IP allows to bomb more sites",
+    "__helper_text_1":
+        "* non-UA IP allows to bomb more sites.\nUse VPN to change country",
     "__request_limit": "Bomb requests per second limit",
     "__disable_lock_sceen": 'Keep screen active',
     "__starting": 'Starting...',
@@ -71,7 +72,7 @@ Map translate = {
     "__last_attack": "Остання атака",
     "__requests_count": "Кількість атак",
     "__helper_text_1":
-        "* неукраїнські IP адреси дозволяють бомбити більше сайтів",
+        "* неукраїнські IP адреси дозволяють бомбити більше сайтів.\nВикористовуйте VPN щоб змінити країну",
     "__request_limit": "Ліміт запитів-бомб за секунду",
     "__disable_lock_sceen": 'Тримати екран увімкненим',
     "__starting": 'Починаємо...',
@@ -602,7 +603,11 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(height: 5),
               Text(
                 translate[locale]["__helper_text_1"],
-                style: TextStyle(fontSize: 12, color: grayColor),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: grayColor,
+                ),
               ),
               const SizedBox(height: 20),
               Text(
@@ -816,9 +821,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 15),
               const Text(
-                "$VERSION",
+                "AttackRussianWeb by RedBlackFury $VERSION",
                 style: TextStyle(fontSize: 12, color: Color(0xFFFFFFFF)),
               )
             ],
