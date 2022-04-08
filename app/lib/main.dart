@@ -22,6 +22,7 @@ const linkColor = Color(0xFF9AC9FF);
 
 const URL_SERVER = 'https://arwdispatch.redblackfury.com';
 
+const VERSION = 'v7.0';
 Map logs = {};
 Map translate = {
   "en": {
@@ -815,6 +816,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               ),
+              const SizedBox(height: 5),
+              const Text(
+                "$VERSION",
+                style: TextStyle(fontSize: 12, color: Color(0xFFFFFFFF)),
+              )
             ],
           ),
         ),
